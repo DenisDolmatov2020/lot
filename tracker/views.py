@@ -57,10 +57,8 @@ class TrackerView(APIView):
             if (tracker.date - last.date).days == 1:
                 tracker.days_row = last.days_row + 1
                 if tracker.days_row == 2 + self.request.user.level:
-                    print('STAR')
                     self.add_star(tracker)
                 if tracker.days_all == 5 + (2 * self.request.user.level):
-                    print('STAR')
                     self.add_star(tracker)
             else:
                 tracker.days_row = 1
@@ -81,7 +79,6 @@ class TrackerView(APIView):
                 return Response(status=status.HTTP_408_REQUEST_TIMEOUT)
 
         if tracker.level_minutes + tracker.day_minutes == 120 * (3 + self.request.user.level):
-            print('STAR')
             self.add_star(tracker)
             if tracker.day_minutes == 20 * (5 + self.request.user.level):
                 self.add_energy()
@@ -93,55 +90,4 @@ class TrackerView(APIView):
         tracker.save()
         serializer = TrackerSerializer(data=tracker.__dict__)
         serializer.is_valid(raise_exception=True)
-        # print(serializer.errors)
         return Response(data=serializer.data, status=status.HTTP_200_OK)
-
-    '''def get(self, request, format=None):
-        trackers = Tracker.objects.filter(user=request.user)
-
-        # print(tracker, created)
-        if trackers:
-            tracker = trackers.latest('date')
-            if tracker.date == datetime.date.today():
-                tracker.day_time += 5
-                tracker.level_time += 5
-                tracker.save()
-            else:
-                Tracker.objects.create(user=request.user, date=datetime.date.today())
-                for t in trackers:
-                    tracker.level_time += t.day_time
-        else:
-            Tracker.objects.create(user=request.user, date=datetime.date.today())
-
-
-        # tracker.save()
-        # if tracker.day_time >= 20 * (5 + request.user.level):
-        day_success = True
-        # print(tracker)
-        serializer = TrackerSerializer(data=tracker)
-        print(serializer)
-        serializer.is_valid()
-        print(serializer.data)
-        return Response(data=serializer.data, status=status.HTTP_200_OK)'''
-
-
-'''    def get(self, request, format=None):
-        tracker, created = Tracker.objects.get_or_create(date=datetime.date.today(), user=request.user)
-
-        print(tracker, created)
-        if created:
-            trackers = Tracker.objects.filter(user=request.user)
-            for t in trackers:
-                tracker.level_time += t.day_time
-        else:
-            tracker.day_time += 5
-
-        tracker.save()
-        # if tracker.day_time >= 20 * (5 + request.user.level):
-        day_success = True
-        print(tracker)
-        serializer = TrackerSerializer(data=tracker)
-        print(serializer)
-        serializer.is_valid()
-        print(serializer.data)
-        return Response(data=serializer.data, status=status.HTTP_200_OK)'''

@@ -25,9 +25,3 @@ class UserSerializer(serializers.ModelSerializer):
         instance.created = validated_data.get('created', instance.created)
         instance.save()
         return instance
-
-
-class UserCompanySerializer(serializers.ModelSerializer):
-    class Meta:
-        model = User
-        fields = ['id', 'name', 'email', 'image']

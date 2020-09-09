@@ -31,11 +31,13 @@ class UserRetrieveUpdateView(RetrieveUpdateAPIView):
 
     def retrieve(self, request, *args, **kwargs):
         serializer = self.get_serializer(self.get_object())
-        user_numbers = LotNumber.objects.filter(owner=request.user)
-        d = {}
-        for i in user_numbers:
-            d[i.lot.id] = i.num
-        return Response(status=status.HTTP_200_OK, data={'user': serializer.data, 'numbers': d})
+        user_numbers = LotNumber.objects.only('lot_id', 'num').filter(owner=request.user).values('lot_id', 'num')
+        print(user_numbers)
+        numbers_dict = {}
+        for number in user_numbers:
+            print(number)
+            numbers_dict[number['lot_id']] = number['num']
+        return Response(status=status.HTTP_200_OK, data={'user': serializer.data, 'numbers': numbers_dict})
 
     def update(self, request, *args, **kwargs):
         user = self.get_object()

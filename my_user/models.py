@@ -46,7 +46,7 @@ class User(AbstractUser):
     image = models.ImageField(verbose_name='Аватар', upload_to='users_avatar/', blank=True, null=True)
 
     theme = models.PositiveSmallIntegerField(verbose_name='Тема дисплея', default=0)
-    locale = models.CharField(verbose_name='Локация сервера', max_length=16, default='ru')
+    locale = models.CharField(verbose_name='Локация', max_length=16, default='ru')
     language = models.CharField(verbose_name='Язык системы', max_length=16, default='ru')
 
     energy = models.PositiveSmallIntegerField(verbose_name='Энергия', default=15)
@@ -55,7 +55,6 @@ class User(AbstractUser):
     karma = models.SmallIntegerField(verbose_name='Карма пользователя', default=0)
 
     level = models.PositiveSmallIntegerField(verbose_name='Уровень', default=1)
-    # level_time = models.PositiveIntegerField(default=0)
 
     sound = models.BooleanField(verbose_name='Звук', default=True)
     notification = models.BooleanField(verbose_name='Уведомления', default=True)

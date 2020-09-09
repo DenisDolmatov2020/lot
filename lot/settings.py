@@ -27,10 +27,8 @@ INSTALLED_APPS = [
     'corsheaders',
     'rest_framework',
     'djoser',
-    'music',
     'tracker',
     'my_user',
-    'task',
     'lots',
     'rest_auth',
     'django.contrib.sites',
@@ -57,8 +55,7 @@ ROOT_URLCONF = 'lot.urls'
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [os.path.join(BASE_DIR, 'templates')]
-        ,
+        'DIRS': [os.path.join(BASE_DIR, 'templates')],
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
@@ -105,7 +102,6 @@ SOCIAL_AUTH_VK_APP_USER_MODE = 2
 
 SOCIAL_AUTH_GOOGLE_OAUTH2_KEY = '756415446899-temcqakf8ib1sa9kdda9rvo7d4i85a4p.apps.googleusercontent.com'
 SOCIAL_AUTH_GOOGLE_OAUTH2_SECRET = 'LhZ0U6lMgj5v-BQxsQnbONu-'
-
 
 
 REST_FRAMEWORK = {

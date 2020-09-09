@@ -6,8 +6,6 @@ import pytz
 from rest_framework import viewsets, status
 from rest_framework.generics import RetrieveUpdateAPIView, ListAPIView, get_object_or_404
 from rest_framework.permissions import AllowAny, IsAuthenticated
-from rest_framework.decorators import action
-from rest_framework.renderers import JSONRenderer
 from rest_framework.response import Response
 from rest_framework.utils import json
 from rest_framework.views import APIView
@@ -20,7 +18,6 @@ from rest_framework.parsers import MultiPartParser, FormParser, JSONParser, File
 from my_user.models import User
 import requests
 from .service import start_lot
-from django.db.models import ManyToOneRel
 
 
 class ReadOnly(BasePermission):
@@ -28,36 +25,19 @@ class ReadOnly(BasePermission):
         return request.method in SAFE_METHODS
 
 
-'''class LotsViewSet(viewsets.ModelViewSet):
-    parser_classes = (MultiPartParser, FormParser, JSONParser)
-    file_content_parser_classes = (JSONParser, FileUploadParser)
-    permission_classes = [AllowAny | ReadOnly]
-    # serializer_class = LotSaveSerializer
-    # queryset = Lot.objects.all()
-
-    def get_queryset(self):
-        if self.action == 'list':
-            return Lot.objects.filter(free=True).filter(active=True)
-        return Lot.objects.all()
-
-    def get_serializer_class(self):
-        if self.action == 'create':
-            return LotSaveSerializer
-        return LotSerializer'''
-
-
 class WinnersList(APIView):
     permission_classes = [AllowAny]
 
-    def get(self, request):
+    @staticmethod
+    def get(request):
         winners = LotNumber.objects.filter(won=True)
         serializer_winners = NumberSerializer(winners, many=True)
         lots = Lot.objects.all()
         serializer_lots = LotSerializer(lots, many=True)
-        return Response(data={
-            'lots': serializer_lots.data,
-            'winners': serializer_winners.data
-        }, status=status.HTTP_200_OK)
+        return Response(
+            data={'lots': serializer_lots.data, 'winners': serializer_winners.data},
+            status=status.HTTP_200_OK
+        )
 
 
 class LotViewSet(viewsets.ViewSet):
@@ -69,19 +49,11 @@ class LotViewSet(viewsets.ViewSet):
     @staticmethod
     def list(request, *args):
         lots = Lot.objects.all()
-        # annotate(wins=LotNumber.objects.filter(won=True))
         for lot in lots:
             if lot.free:
                 lot.conditions = Condition.objects.filter(lot_id=lot.id)
             else:
-                wins = LotNumber.objects.filter(lot_id=lot.id, won=True)
-                if len(wins):
-                    lot.wins = wins
-                '''else:
-                    lot.wins = start_lot(lot)'''
-            # print(connection.queries)
-
-        # filter(free=True).filter(active=True)
+                lot.wins = LotNumber.objects.filter(lot_id=lot.id, won=True)
         serializer = LotSerializer(lots, many=True)
         return Response(serializer.data)
 
@@ -102,21 +74,7 @@ class LotViewSet(viewsets.ViewSet):
             serializer.save()
             return Response(status=status.HTTP_201_CREATED)
         else:
-            print(serializer.errors)
             return Response(status=status.HTTP_400_BAD_REQUEST)
-
-    '''
-        print(serializer)
-        lot = serializer.save()
-        conditions = [{"link": "https://twitter.com/account/access", "value": "i", "icon": "mdi-twitter", "color": "cyan","title":"Twitter","actions":["Подписка"]}, {"link":"https://twitter.com/account/access","value":"i","icon":"mdi-twitter","color":"cyan","title":"Twitter","actions":["Подписка"]}]
-        serializer_conditions = ConditionSerializer(data=conditions, many=True)
-        print(serializer_conditions.is_valid(raise_exception=True))
-        if serializer_conditions.is_valid():
-            print('1')
-            print(serializer_conditions.data)
-            serializer_conditions.save(lot_id=lot.id)
-        print(serializer_conditions)
-    '''
 
 
 class NumberListUpdateView(APIView):
@@ -131,23 +89,26 @@ class NumberListUpdateView(APIView):
             step_energy = lot_numbers[0].lot.energy * (2 ** steps_count)
         return lot_numbers, step_energy
 
-    def patch(self, request, pk, format=None):
-        print('Start PATCH !')
+    def patch(self, request, pk):
         lot_number = get_object_or_404(LotNumber, pk=pk)
         if lot_number.owner:
-            return Response(data={'message': 'Its number have owner'}, status=status.HTTP_208_ALREADY_REPORTED)
+            return Response(
+                data={'message': 'Its number have owner'},
+                status=status.HTTP_208_ALREADY_REPORTED
+            )
         lot_numbers, step_energy = self.get_numbers(lot_number.lot.id)
-        user = get_object_or_404(User, id=self.request.user.id)
-        if step_energy <= user.energy and self.request.user.id:
-            if lot_number.lot.creator == self.request.user:
-                return Response(
-                    data={'message': 'Its self number'}, status=status.HTTP_203_NON_AUTHORITATIVE_INFORMATION
-                )
-            lot_number.owner = self.request.user
-            lot_number.save()
+        if lot_number.lot.creator == request.user:
+            return Response(
+                data={'message': 'Its self number'},
+                status=status.HTTP_203_NON_AUTHORITATIVE_INFORMATION
+            )
+        user = get_object_or_404(User, id=request.user.id)
+        if step_energy <= user.energy and request.user.id:
+            lot_number.owner = request.user
+            lot_number.save(update_fields=['owner'])
             if lot_number.owner:
                 user.energy -= step_energy
-                user.save()
+                user.save(update_fields=['energy'])
             self.check_free(lot_number.lot.id, lot_numbers)
             next_step_energy = step_energy * 2 - user.karma
             if next_step_energy < 1:
@@ -175,13 +136,14 @@ class NumberListUpdateView(APIView):
                 if lot_number.lot.energy <= user.energy:
                     if lot_number.lot.creator == request.user:
                         return Response(
-                            data={'message': 'Its self number'}, status=status.HTTP_203_NON_AUTHORITATIVE_INFORMATION
+                            data={'message': 'Its self number'},
+                            status=status.HTTP_203_NON_AUTHORITATIVE_INFORMATION
                         )
                     lot_number.owner = request.user
-                    lot_number.save()
+                    lot_number.save(update_fields=['owner'])
                     if lot_number.owner:
                         user.energy -= lot_number.lot.energy
-                        user.save()
+                        user.save(update_fields=['energy'])
                     if lot_numbers_free_count == 1:
                         self.start_lot(lot_number.lot.id)
 
@@ -244,9 +206,7 @@ class NumberListUpdateView(APIView):
                 json_ = json.loads(r.text)
                 lot.winners_complete = json_['result']['random']['completionTime']
                 data_ = json_['result']['random']['data']
-
                 LotNumber.objects.filter(lot=lot, num__in=data_).update(won=True)
-
                 last = Lot.objects.latest('start')
                 now_time = datetime.datetime.now(datetime.timezone.utc)
                 if not last.start or last.start < now_time:
