@@ -32,11 +32,7 @@ class UserRetrieveUpdateView(RetrieveUpdateAPIView):
     def retrieve(self, request, *args, **kwargs):
         serializer = self.get_serializer(self.get_object())
         user_numbers = LotNumber.objects.only('lot_id', 'num').filter(owner=request.user).values('lot_id', 'num')
-        print(user_numbers)
-        numbers_dict = {}
-        for number in user_numbers:
-            print(number)
-            numbers_dict[number['lot_id']] = number['num']
+        numbers_dict = {number['lot_id']: number['num'] for number in user_numbers}
         return Response(status=status.HTTP_200_OK, data={'user': serializer.data, 'numbers': numbers_dict})
 
     def update(self, request, *args, **kwargs):
@@ -45,8 +41,6 @@ class UserRetrieveUpdateView(RetrieveUpdateAPIView):
             user.name = request.data.get('name')
         if request.data.get('image') and request.data.get('image') is not None:
             user.image = request.data.get('image')
-        user.notification = request.data.get('notification') == 'true'
-        user.sound = request.data.get('sound') == 'true'
-        user.save()
+        user.save(update_fields=['name', 'image'])
         serializer = self.get_serializer(user)
         return Response(status=status.HTTP_200_OK, data=serializer.data)
