@@ -2,7 +2,6 @@ from django.contrib.auth.models import User
 from rest_framework import status
 from rest_framework.parsers import MultiPartParser, FormParser, JSONParser, FileUploadParser
 from rest_framework.response import Response
-
 from lots.models import LotNumber
 from my_user.serializers import UserSerializer
 from rest_framework.generics import get_object_or_404, CreateAPIView, RetrieveUpdateAPIView
@@ -23,8 +22,7 @@ class UserRetrieveUpdateView(RetrieveUpdateAPIView):
     permission_classes = [IsAuthenticated]
     queryset = User.objects.all()
     serializer_class = UserSerializer
-    parser_classes = (MultiPartParser, FormParser, JSONParser)
-    parser_class = (FileUploadParser,)
+    parser_classes = (MultiPartParser,)
 
     def get_object(self):
         return get_object_or_404(User, id=self.request.user.id)
