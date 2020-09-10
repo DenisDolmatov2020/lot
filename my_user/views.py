@@ -31,16 +31,24 @@ class UserRetrieveUpdateView(RetrieveUpdateAPIView):
 
     def retrieve(self, request, *args, **kwargs):
         serializer = self.get_serializer(self.get_object())
-        user_numbers = LotNumber.objects.only('lot_id', 'num').filter(owner=request.user).values('lot_id', 'num')
-        numbers_dict = {number['lot_id']: number['num'] for number in user_numbers}
-        return Response(status=status.HTTP_200_OK, data={'user': serializer.data, 'numbers': numbers_dict})
+        user_numbers = LotNumber.objects.only('lot_id', 'num').filter(owner=request.user)
+        numbers_dict = {number.lot_id: number.num for number in user_numbers}
+        return Response(
+            status=status.HTTP_200_OK,
+            data={'user': serializer.data, 'numbers': numbers_dict}
+        )
 
     def update(self, request, *args, **kwargs):
-        user = self.get_object()
-        if request.data.get('name'):
-            user.name = request.data.get('name')
-        if request.data.get('image') and request.data.get('image') is not None:
-            user.image = request.data.get('image')
-        user.save(update_fields=['name', 'image'])
-        serializer = self.get_serializer(user)
-        return Response(status=status.HTTP_200_OK, data=serializer.data)
+        instance = self.get_object()
+        serializer = UserSerializer(
+            instance=instance,
+            data=request.data,
+            partial=True
+        )
+        serializer.is_valid(raise_exception=True)
+        serializer.save()
+        return Response(
+            status=status.HTTP_200_OK,
+            data=serializer.data
+        )
+

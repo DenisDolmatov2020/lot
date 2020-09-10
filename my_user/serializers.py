@@ -18,10 +18,3 @@ class UserSerializer(serializers.ModelSerializer):
             'sound',
             'notification',
         ]
-
-    def update(self, instance, validated_data):
-        instance.email = validated_data.get('email', instance.email)
-        instance.content = validated_data.get('content', instance.content)
-        instance.created = validated_data.get('created', instance.created)
-        instance.save()
-        return instance

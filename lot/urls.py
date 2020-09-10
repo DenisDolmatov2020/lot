@@ -9,7 +9,7 @@ urlpatterns = [
     path('', include('rest_framework.urls')),
     path('api/tracker/', include('tracker.urls')),
     path('api/lots/', include('lots.urls')),
-    path('api/my_user/', include('my_user.urls')),
+    path('api/my-user/', include('my_user.urls')),
     path('rest-auth/', include('rest_auth.urls')),
     path('api/user/', include('djoser.urls')),
     path('auth/', include('rest_framework_social_oauth2.urls')),

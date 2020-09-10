@@ -18,12 +18,6 @@ from tracker.models import Tracker
 from tracker.serializers import TrackerSerializer
 
 
-'''    
-    def get_track(self, tracker):
-        return level_time, days_row, days_row_success, trackers.count()
-'''
-
-
 class TrackerView(APIView):
     permission_classes = [IsAuthenticated]
 

@@ -10,19 +10,14 @@ from rest_framework.response import Response
 from rest_framework.utils import json
 from rest_framework.views import APIView
 
+from lot.permissions import ReadOnly
 from lots.models import Lot, LotNumber, Condition
 from lots.serializers import LotSerializer, NumberSerializer, LotSaveSerializer, ConditionSerializer
-from rest_framework.permissions import BasePermission, SAFE_METHODS
 from rest_framework.parsers import MultiPartParser, FormParser, JSONParser, FileUploadParser
 
 from my_user.models import User
 import requests
 from .service import start_lot
-
-
-class ReadOnly(BasePermission):
-    def has_permission(self, request, view):
-        return request.method in SAFE_METHODS
 
 
 class WinnersList(APIView):
@@ -244,13 +239,3 @@ class TimelinesList(ListAPIView):
     permission_classes = [AllowAny]
     serializer_class = LotSerializer
     queryset = Lot.objects.filter(free=False)
-
-
-class WinnersList(APIView):
-    permission_classes = [AllowAny]
-    serializer_class = NumberSerializer
-
-    def get(self, request):
-        winners = LotNumber.objects.filter(won=True)
-        serializer = NumberSerializer(winners, many=True)
-        return Response(data={'winners': serializer.data}, status=status.HTTP_200_OK)
