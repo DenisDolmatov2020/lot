@@ -6,8 +6,6 @@ from rest_framework_simplejwt.views import (
     TokenVerifyView,
 )
 
-# UpdateProfileView,
-
 urlpatterns = [
     # path('token/login/', TokenCreateView.as_view(), name='login'),
     path('create/', UserCreateView.as_view(), name='user_create'),

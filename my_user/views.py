@@ -2,7 +2,7 @@ from django.contrib.auth.models import User
 from rest_framework import status
 from rest_framework.parsers import MultiPartParser, FormParser, JSONParser, FileUploadParser
 from rest_framework.response import Response
-from lots.models import LotNumber
+from number.models import Number
 from my_user.serializers import UserSerializer
 from rest_framework.generics import get_object_or_404, CreateAPIView, RetrieveUpdateAPIView
 from rest_framework.permissions import IsAdminUser, IsAuthenticated, AllowAny
@@ -29,7 +29,7 @@ class UserRetrieveUpdateView(RetrieveUpdateAPIView):
 
     def retrieve(self, request, *args, **kwargs):
         serializer = self.get_serializer(self.get_object())
-        user_numbers = LotNumber.objects.only('lot_id', 'num').filter(owner=request.user)
+        user_numbers = Number.objects.only('lot_id', 'num').filter(owner=request.user)
         numbers_dict = {number.lot_id: number.num for number in user_numbers}
         return Response(
             status=status.HTTP_200_OK,

@@ -30,6 +30,7 @@ INSTALLED_APPS = [
     'tracker',
     'my_user',
     'lots',
+    'number',
     'rest_auth',
     'django.contrib.sites',
     'rest_auth.registration',

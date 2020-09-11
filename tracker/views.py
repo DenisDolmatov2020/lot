@@ -1,18 +1,10 @@
 import datetime
 import math
-from collections import namedtuple
-# Create your views here.
 from django.utils import timezone
 from rest_framework import viewsets, status
-from rest_framework.generics import RetrieveUpdateAPIView, ListAPIView, get_object_or_404
 from rest_framework.permissions import AllowAny, IsAuthenticated
-from rest_framework.decorators import action
-from rest_framework.renderers import JSONRenderer
 from rest_framework.response import Response
-from rest_framework.utils import json
 from rest_framework.views import APIView
-
-from lots.models import Lot, LotNumber, Condition
 from my_user.models import User
 from tracker.models import Tracker
 from tracker.serializers import TrackerSerializer
