@@ -14,16 +14,12 @@ class LotViewSet(viewsets.ViewSet):
     parser_classes = (MultiPartParser, FormParser, JSONParser, FileUploadParser)
     file_content_parser_classes = (JSONParser, FileUploadParser)
     permission_classes = [AllowAny | ReadOnly]
+    queryset = Lot.objects.all()
     serializer = LotSerializer
 
     @staticmethod
     def list(request, *args):
         lots = Lot.objects.all()
-        for lot in lots:
-            if lot.free:
-                lot.conditions = Condition.objects.filter(lot_id=lot.id)
-            else:
-                lot.wins = Number.objects.filter(lot_id=lot.id, won=True)
         serializer = LotSerializer(lots, many=True)
         return Response(serializer.data)
 
@@ -31,6 +27,10 @@ class LotViewSet(viewsets.ViewSet):
     def retrieve(request, pk=None, *args):
         queryset = Lot.objects.all()
         lot = get_object_or_404(queryset, pk=pk)
+        if lot.free:
+            lot.conditions = Condition.objects.filter(lot_id=lot.id)
+        else:
+            lot.wins = Number.objects.filter(lot_id=lot.id, won=True)
         serializer = LotSerializer(lot)
         return Response(serializer.data)
 
