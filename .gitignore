@@ -1,6 +1,7 @@
 media/*
 /media/*
 media/
+/migrations/*_initial.py
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
