@@ -1,4 +1,5 @@
 from django.contrib.auth.models import User
+from django.db import connection
 from rest_framework import status
 from rest_framework.parsers import MultiPartParser, FormParser, JSONParser, FileUploadParser
 from rest_framework.response import Response
@@ -24,11 +25,8 @@ class UserRetrieveUpdateView(RetrieveUpdateAPIView):
     serializer_class = UserSerializer
     parser_classes = (MultiPartParser,)
 
-    def get_object(self):
-        return get_object_or_404(User, id=self.request.user.id)
-
     def retrieve(self, request, *args, **kwargs):
-        serializer = self.get_serializer(self.get_object())
+        serializer = self.get_serializer(request.user)
         user_numbers = Number.objects.only('lot_id', 'num').filter(owner=request.user)
         numbers_dict = {number.lot_id: number.num for number in user_numbers}
         return Response(
@@ -37,9 +35,8 @@ class UserRetrieveUpdateView(RetrieveUpdateAPIView):
         )
 
     def update(self, request, *args, **kwargs):
-        instance = self.get_object()
         serializer = UserSerializer(
-            instance=instance,
+            instance=request.user,
             data=request.data,
             partial=True
         )

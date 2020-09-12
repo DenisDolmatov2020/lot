@@ -45,19 +45,10 @@ class User(AbstractUser):
     name = models.CharField(verbose_name='name', max_length=255)
     image = models.ImageField(verbose_name='Аватар', upload_to='users_avatar/', blank=True, null=True)
 
-    theme = models.PositiveSmallIntegerField(verbose_name='Тема дисплея', default=0)
     locale = models.CharField(verbose_name='Локация', max_length=16, default='ru')
     language = models.CharField(verbose_name='Язык системы', max_length=16, default='ru')
-
     energy = models.PositiveSmallIntegerField(verbose_name='Энергия', default=15)
-    stars = models.PositiveSmallIntegerField(verbose_name='Баллы пользователя', default=0)
-    diamonds = models.PositiveIntegerField(verbose_name='', default=0, blank=True)
     karma = models.SmallIntegerField(verbose_name='Карма пользователя', default=0)
-
-    level = models.PositiveSmallIntegerField(verbose_name='Уровень', default=1)
-
-    sound = models.BooleanField(verbose_name='Звук', default=True)
-    notification = models.BooleanField(verbose_name='Уведомления', default=True)
 
     USERNAME_FIELD = 'email'
     REQUIRED_FIELDS = ['name']

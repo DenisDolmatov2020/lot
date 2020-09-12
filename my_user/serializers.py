@@ -10,11 +10,6 @@ class UserSerializer(serializers.ModelSerializer):
             'name',
             'email',
             'image',
-            'stars',
             'energy',
-            'diamonds',
             'karma',
-            'level',
-            'sound',
-            'notification',
         ]
