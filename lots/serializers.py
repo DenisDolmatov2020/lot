@@ -28,9 +28,7 @@ class LotSerializer(serializers.ModelSerializer):
             'players',
             'winners',
             'energy',
-            'free',
             'active',
-            'start',
             'wins',
             'conditions'
         ]
@@ -49,15 +47,10 @@ class LotSaveSerializer(serializers.ModelSerializer):
             'title',
             'description',
             'image',
-            'image_two',
-            'image_three',
-            'image_four',
             'players',
             'winners',
             'energy',
-            'free',
             'active',
-            'start',
             'conditions',
         ]
 

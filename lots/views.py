@@ -27,7 +27,7 @@ class LotViewSet(viewsets.ViewSet):
     def retrieve(request, pk=None, *args):
         queryset = Lot.objects.all()
         lot = get_object_or_404(queryset, pk=pk)
-        if lot.free:
+        if lot.active:
             lot.conditions = Condition.objects.filter(lot_id=lot.id)
         else:
             lot.wins = Number.objects.filter(lot_id=lot.id, won=True)
@@ -50,4 +50,4 @@ class LotViewSet(viewsets.ViewSet):
 class TimelinesList(ListAPIView):
     permission_classes = [AllowAny]
     serializer_class = LotSerializer
-    queryset = Lot.objects.filter(free=False)
+    queryset = Lot.objects.filter(active=False)

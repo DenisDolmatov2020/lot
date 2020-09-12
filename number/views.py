@@ -19,15 +19,6 @@ from django.db import connection
 class NumberListUpdateView(APIView):
     permission_classes = [IsAuthenticated | ReadOnly]
 
-    def get_numbers(self, pk):
-        lot_numbers = Number.objects.filter(lot_id=pk)
-        step_energy = 0
-
-        if self.request.user.id and lot_numbers:
-            steps_count = lot_numbers.filter(owner_id=self.request.user.id).count()
-            step_energy = lot_numbers[0].lot.energy * (2 ** steps_count)
-        return lot_numbers, step_energy
-
     def post(self, request, pk):
         lot_numbers_free = Number.objects.filter(lot_id=pk).filter(owner_id=None)
         lot_numbers_free_count = lot_numbers_free.count()
@@ -78,9 +69,6 @@ class NumberListUpdateView(APIView):
     @staticmethod
     def start_lot(pk):
         lot = Lot.objects.get(pk=pk)
-        print('CONNECTION')
-        print(connection.queries)
-        print(len(connection.queries))
         if not lot.start:
             lot.free = False
             # winners choose
@@ -96,16 +84,12 @@ class NumberListUpdateView(APIView):
                 start_lot(lot)
 
     def get(self, request, pk):
-        lot_numbers, step_energy = self.get_numbers(pk)
+        lot_numbers = Number.objects.filter(lot_id=pk)
         self.check_free(pk, lot_numbers)
-        if lot_numbers:
-            serializer = NumberSerializer(lot_numbers, many=True)
-            if request.user.id:
-                step_energy -= request.user.karma
-            if step_energy < 1:
-                step_energy = 1
-            return Response(data={'numbers': serializer.data, 'step_energy': step_energy},
-                            status=status.HTTP_200_OK)
-        return Response(status=status.HTTP_204_NO_CONTENT)
+        serializer = NumberSerializer(lot_numbers, many=True)
+        return Response(
+                  data={'numbers': serializer.data},
+                  status=status.HTTP_200_OK
+               )
 
 
