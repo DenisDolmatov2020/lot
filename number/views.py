@@ -33,7 +33,7 @@ class NumberListUpdateView(APIView):
             if len(lot_numbers_free) <= 1 and lot_number.lot.active:
                 choose_winners(lot_number.lot)
             serializer = NumberSerializer(lot_number)
-            print('7 %s' % len(connection.queries))
+            print('Total requests: %s' % len(connection.queries))
             return Response(
                 data={'number': serializer.data},
                 status=status.HTTP_200_OK

@@ -3,7 +3,7 @@ from lot.settings import AUTH_USER_MODEL
 
 
 class Lot(models.Model):
-    creator = models.ForeignKey(AUTH_USER_MODEL, related_name='user', on_delete=models.CASCADE)
+    user = models.ForeignKey(AUTH_USER_MODEL, related_name='user', on_delete=models.CASCADE)
     title = models.CharField(verbose_name='Название', max_length=48)
     description = models.CharField(verbose_name='Описание', max_length=160, blank=True, null=True)
     image = models.ImageField(verbose_name='Основное изображение', upload_to='lot/', blank=True, null=True)
@@ -27,4 +27,3 @@ class Condition(models.Model):
     like = models.BooleanField(default=False)
     repost = models.BooleanField(default=False)
     comment = models.BooleanField(default=False)
-    # actions = models.ManyToManyField(Action, related_name="actions_set")

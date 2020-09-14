@@ -1,5 +1,6 @@
 from rest_framework import serializers
 from lots.models import Lot, Condition
+from my_user.models import User
 from my_user.serializers import UserSerializer
 from number.serializers import NumberSerializer
 
@@ -13,46 +14,19 @@ class ConditionSerializer(serializers.ModelSerializer):
 
 class LotSerializer(serializers.ModelSerializer):
     # conditions = ConditionSerializer(many=True, required=False)
-    creator = UserSerializer(read_only=True)
-    conditions = ConditionSerializer(many=True, read_only=True)
+    user = UserSerializer(read_only=True)
+    user_id = serializers.PrimaryKeyRelatedField(
+        queryset=User.objects.all(),
+        required=True,
+        source='user',
+        write_only=True
+    )
+    conditions = ConditionSerializer(many=True, required=False)
     wins = NumberSerializer(many=True, read_only=True)
 
     class Meta:
         model = Lot
-        fields = [
-            'id',
-            'creator',
-            'title',
-            'description',
-            'image',
-            'players',
-            'winners',
-            'energy',
-            'active',
-            'wins',
-            'conditions'
-        ]
-
-
-class LotSaveSerializer(serializers.ModelSerializer):
-    # creator = UserCompanySerializer(read_only=True)
-    conditions = ConditionSerializer(many=True)
-    # conditions = serializers.PrimaryKeyRelatedField(many=True, read_only=True, allow_null=True)
-
-    class Meta:
-        model = Lot
-        fields = [
-            'id',
-            'creator',
-            'title',
-            'description',
-            'image',
-            'players',
-            'winners',
-            'energy',
-            'active',
-            'conditions',
-        ]
+        fields = '__all__'
 
     def create(self, validated_data):
         conditions_data = validated_data.pop('conditions', [])
